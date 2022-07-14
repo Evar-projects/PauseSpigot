@@ -1,3 +1,6 @@
+# PauseSpigot
+Fork of PandaSpigot with performance improvements
+
 # PandaSpigot [![Build](https://github.com/hpfxd/PandaSpigot/actions/workflows/build.yml/badge.svg)](https://github.com/hpfxd/PandaSpigot/actions/workflows/build.yml)
 Fork of Paper for 1.8.8 focused on improved performance and stability.
 
