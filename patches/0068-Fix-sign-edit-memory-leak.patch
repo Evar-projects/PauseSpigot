@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Permisos <ido@terrorist.services>
+Date: Wed, 3 Aug 2022 20:13:14 -0300
+Subject: [PATCH] Fix sign edit memory leak
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerConnection.java b/src/main/java/net/minecraft/server/PlayerConnection.java
+index e2499f5f9c4b289e41c0f8fb922ed085047c7099..8d3d5f3adaf1c2bf229b1cb586d3951fa438ba9c 100644
+--- a/src/main/java/net/minecraft/server/PlayerConnection.java
++++ b/src/main/java/net/minecraft/server/PlayerConnection.java
+@@ -1905,7 +1905,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
+ 
+             TileEntitySign tileentitysign = (TileEntitySign) tileentity;
+ 
+-            if (!tileentitysign.b() || tileentitysign.c() != this.player) {
++            if (!tileentitysign.b() || tileentitysign.signEditor == null || !tileentitysign.signEditor.equals(this.player.getUniqueID())) { // Paper
+                 this.minecraftServer.warning("Player " + this.player.getName() + " just tried to change non-editable sign");
+                 this.sendPacket(new PacketPlayOutUpdateSign(tileentity.world, packetplayinupdatesign.a(), tileentitysign.lines)); // CraftBukkit
+                 return;
+diff --git a/src/main/java/net/minecraft/server/TileEntitySign.java b/src/main/java/net/minecraft/server/TileEntitySign.java
+index e927fd237d4ac6a0752045d65f27ee947b7b0636..198c787b76a85c81b0141fffaf80b684875daaf1 100644
+--- a/src/main/java/net/minecraft/server/TileEntitySign.java
++++ b/src/main/java/net/minecraft/server/TileEntitySign.java
+@@ -10,6 +10,8 @@ public class TileEntitySign extends TileEntity {
+     private EntityHuman h;
+     private final CommandObjectiveExecutor i = new CommandObjectiveExecutor();
+ 
++    public java.util.UUID signEditor; // Paper
++
+     public TileEntitySign() {}
+ 
+     public void b(NBTTagCompound nbttagcompound) {
+@@ -121,7 +123,10 @@ public class TileEntitySign extends TileEntity {
+     }
+ 
+     public void a(EntityHuman entityhuman) {
+-        this.h = entityhuman;
++        // Paper start
++        //this.h = entityhuman;
++        signEditor = entityhuman != null ? entityhuman.getUniqueID() : null;
++        // Paper end
+     }
+ 
+     public EntityHuman c() {
